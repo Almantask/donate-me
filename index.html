@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-title-key="donateTitle">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="no-referrer">
+  <title>Insert Coin · Support Almantask</title>
+  <meta name="description" content="Official donation page for Almantask's open-source projects.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <script src="js/guard.js"></script>
+  <script src="js/i18n.js" defer></script>
+  <script src="js/pixel.js" defer></script>
+  <script src="js/donate.js" defer></script>
+</head>
+<body>
+  <div class="fx-wrap" aria-hidden="true"><canvas id="fx"></canvas></div>
+
+  <div class="framed-warning" role="alert">
+    <p class="pixel" data-i18n="warning">WARNING</p>
+    <p data-i18n="framedText">This page has been embedded inside another website, which is not allowed.</p>
+    <p><a class="btn js-official-link" href="https://almantask.github.io/donate-me/" target="_blank" rel="noopener noreferrer" data-i18n="openOfficial">OPEN OFFICIAL PAGE</a></p>
+  </div>
+
+  <div class="unofficial-banner" role="alert">
+    <strong><span data-i18n="unofficialA">⚠ This is NOT the official page of </span><span class="js-display-name">Almantask</span><span data-i18n="unofficialB">. Don't pay here.</span></strong>
+    <span data-i18n="unofficialC">The official page is </span>
+    <a class="js-official-link" href="https://almantask.github.io/donate-me/" rel="noopener noreferrer"><span class="js-official-url">https://almantask.github.io/donate-me/</span></a>
+  </div>
+
+  <nav class="lang-switch" aria-label="Language">
+    <a data-lang="en" lang="en" hreflang="en" href="?lang=en">EN</a>
+    <a data-lang="lt" lang="lt" hreflang="lt" href="?lang=lt">LT</a>
+  </nav>
+
+  <main class="page">
+    <p class="eyebrow pixel" data-i18n="eyebrow">PLAYER 2 HAS ENTERED</p>
+
+    <div class="stage" id="stage" aria-hidden="true"></div>
+
+    <h1 class="pixel"><span data-i18n="support">SUPPORT</span> <span class="js-display-name">Almantask</span></h1>
+
+    <p class="project-line" id="project-line" hidden><span data-i18n="projectThanks">Thanks for enjoying </span><strong id="project-name"></strong></p>
+
+    <div class="typed-lines">
+      <p class="type" data-i18n="line1">Thank you for playing with my projects.</p>
+      <p class="type" data-i18n="line2">Every coin keeps the servers on and the ideas coming.</p>
+    </div>
+
+    <div class="cta">
+      <a id="donate-btn" class="btn btn-primary" aria-disabled="true" rel="noopener noreferrer" data-i18n="insertCoin">INSERT COIN</a>
+      <p id="donate-status" class="status" role="status"></p>
+      <p class="hint" data-i18n="hint">Secure checkout by Stripe. You choose the amount. Cards, Apple Pay and Google Pay.</p>
+    </div>
+
+    <section class="safety" aria-labelledby="safety-title">
+      <h2 id="safety-title" class="pixel" data-i18n="staySafe">STAY SAFE</h2>
+      <ul>
+        <li><span data-i18n="safe1a">Checkout opens on a </span><b>stripe.com</b><span data-i18n="safe1b"> address and shows </span><b class="js-recipient">Almantask</b><span data-i18n="safe1c"> as the recipient. If it shows anything else, don't pay.</span></li>
+        <li><span data-i18n="safe2">I will never ask for donations by DM, email, gift cards or crypto. The only official page is </span><span class="js-official-url">https://almantask.github.io/donate-me/</span></li>
+        <li data-i18n="safe3">Donations are voluntary support for open-source work. No goods or services are provided in return.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="js-github-link" href="https://github.com/Almantask" rel="noopener noreferrer">GITHUB</a>
+  </footer>
+</body>
+</html>

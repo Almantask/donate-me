@@ -1,0 +1,12 @@
+{
+  "name": "donate-me",
+  "private": true,
+  "description": "Retro pixel donation page. No dependencies; package.json only defines scripts.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "start": "python -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

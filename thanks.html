@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-title-key="thanksTitle">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Thank You! · Almantask</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <script src="js/guard.js"></script>
+  <script src="js/i18n.js" defer></script>
+  <script src="js/pixel.js" defer></script>
+  <script src="js/thanks.js" defer></script>
+</head>
+<body>
+  <div class="fx-wrap" aria-hidden="true"><canvas id="fx"></canvas></div>
+
+  <div class="framed-warning" role="alert">
+    <p class="pixel" data-i18n="warning">WARNING</p>
+    <p data-i18n="framedText">This page has been embedded inside another website, which is not allowed.</p>
+    <p><a class="btn js-official-link" href="https://almantask.github.io/donate-me/" target="_blank" rel="noopener noreferrer" data-i18n="openOfficial">OPEN OFFICIAL PAGE</a></p>
+  </div>
+
+  <div class="unofficial-banner" role="alert">
+    <strong><span data-i18n="unofficialA">⚠ This is NOT the official page of </span><span class="js-display-name">Almantask</span><span data-i18n="unofficialB">. Don't pay here.</span></strong>
+    <span data-i18n="unofficialC">The official page is </span>
+    <a class="js-official-link" href="https://almantask.github.io/donate-me/" rel="noopener noreferrer"><span class="js-official-url">https://almantask.github.io/donate-me/</span></a>
+  </div>
+
+  <nav class="lang-switch" aria-label="Language">
+    <a data-lang="en" lang="en" hreflang="en" href="?lang=en">EN</a>
+    <a data-lang="lt" lang="lt" hreflang="lt" href="?lang=lt">LT</a>
+  </nav>
+
+  <main class="page page-thanks">
+    <div class="stage" id="stage" aria-hidden="true"></div>
+
+    <h1 class="pixel thanks-title" id="thanks-title" data-i18n="thankYou">THANK YOU!</h1>
+
+    <p class="achievement pixel"><span data-i18n="achievementA">ACHIEVEMENT UNLOCKED: </span><span class="nowrap" data-i18n="achievementB">SUPPORTER</span></p>
+
+    <p class="project-line" id="project-line" hidden><span data-i18n="projectSupport">You're supporting </span><strong id="project-name"></strong></p>
+
+    <div class="typed-lines">
+      <p class="type" data-i18n="thanksLine1">You just made my day.</p>
+      <p class="type" data-i18n="thanksLine2">Your support keeps me building. See you in the next level!</p>
+    </div>
+
+    <div class="cta">
+      <a id="back-btn" class="btn btn-primary" href="https://github.com/Almantask" rel="noopener noreferrer">&lt; <span id="back-label" data-i18n="backProjects">BACK TO THE PROJECTS</span></a>
+    </div>
+
+    <p class="note" data-i18n="receiptNote">If your payment went through, Stripe has emailed you a receipt. This page on its own does not confirm a payment.</p>
+  </main>
+
+  <footer class="footer">
+    <a class="js-github-link" href="https://github.com/Almantask" rel="noopener noreferrer">GITHUB</a>
+  </footer>
+</body>
+</html>
