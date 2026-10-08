@@ -7,18 +7,22 @@ const { ROOT, read, loadConfig, runGuard } = require("./helpers");
 
 const PAGES = ["index.html", "thanks.html"];
 const CSP =
-  "default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; " +
-  "connect-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests";
+  "default-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; " +
+  "style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src https://cloudflareinsights.com; " +
+  "base-uri 'none'; form-action 'none'; upgrade-insecure-requests";
 
 function listFiles(dir) {
   return fs.readdirSync(path.join(ROOT, dir)).map((f) => `${dir}/${f}`);
 }
 
-test("pages ship the strict CSP and no-referrer policy", () => {
+test("pages ship the strict CSP and referrer policy", () => {
   for (const page of PAGES) {
     const html = read(page);
     assert.ok(html.includes(`<meta http-equiv="Content-Security-Policy" content="${CSP}">`), `${page}: CSP missing or changed`);
-    assert.ok(html.includes('<meta name="referrer" content="no-referrer">'), `${page}: referrer policy missing`);
+    assert.ok(
+      html.includes('<meta name="referrer" content="strict-origin-when-cross-origin">'),
+      `${page}: referrer policy missing`
+    );
   }
 });
 
@@ -45,11 +49,22 @@ test("no inline scripts, inline styles, event handlers or external resources", (
   assert.doesNotMatch(read("css/style.css"), /url\(\s*["']?(?:[a-z]+:)?\/\//i, "style.css: external url()");
 });
 
-test("external links never leak the opener", () => {
+test("external links never leak the opener or the referrer", () => {
   for (const page of PAGES) {
     for (const m of read(page).matchAll(/<a\b[^>]*href="https?:[^"]*"[^>]*>/gi)) {
       assert.match(m[0], /rel="[^"]*noopener[^"]*"/, `${page}: ${m[0]}`);
+      assert.match(m[0], /rel="[^"]*noreferrer[^"]*"/, `${page}: ${m[0]}`);
     }
+  }
+});
+
+test("analytics.js is deferred and loads after the guard", () => {
+  for (const page of PAGES) {
+    const scripts = [...read(page).matchAll(/<script\b([^>]*)><\/script>/g)].map((m) => m[1]);
+    const guardAt = scripts.findIndex((s) => /src="js\/guard\.js"/.test(s));
+    const analyticsAt = scripts.findIndex((s) => /src="js\/analytics\.js"/.test(s));
+    assert.ok(guardAt !== -1 && analyticsAt > guardAt, page);
+    assert.match(scripts[analyticsAt], /\bdefer\b/, page);
   }
 });
 
@@ -80,5 +95,8 @@ test("config is valid", () => {
   }
   for (const slug of Object.keys(cfg.projects || {})) {
     assert.ok(guard.getProject(slug), `projects.${slug} is invalid (slug must be [a-z0-9-], url must be https, name required)`);
+  }
+  if (cfg.cloudflareAnalyticsToken) {
+    assert.match(cfg.cloudflareAnalyticsToken, /^[a-f0-9]{32}$/i, "cloudflareAnalyticsToken must be the 32-hex site token");
   }
 });

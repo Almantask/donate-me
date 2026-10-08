@@ -34,6 +34,12 @@ jobs:
             echo "::warning file=js/config.js::stripePaymentLink is empty - the donate button will be disabled."
           fi
 
+      - name: Check analytics token is configured
+        run: |
+          if grep -Eq '^\s*cloudflareAnalyticsToken:\s*""' js/config.js; then
+            echo "::warning file=js/config.js::cloudflareAnalyticsToken is empty - page views and donate clicks will not be tracked."
+          fi
+
       # Only the public site files are published, never tests, workflows or local config.
       - name: Build site
         run: |

@@ -5,7 +5,7 @@ A retro pixel-art donation page for my open-source projects, with no backend.
 - **Donate page** (`index.html`): a beating 8-bit heart, floating hearts and an `INSERT COIN` button that opens a Stripe Payment Link.
 - **Thank-you page** (`thanks.html`): Stripe redirects here after payment. The heart levels up, bursts into pixel confetti, and stars rain down.
 - **Cost:** hosting on GitHub Pages is free. Stripe charges only its processing fee (roughly 1.5% + €0.25 for EEA cards). There's no platform fee and no subscription.
-- **Privacy:** donors see your handle and Stripe's checkout, not your personal details. The page makes no third-party requests: no analytics, CDN or Google Fonts.
+- **Privacy:** donors see your handle and Stripe's checkout, not your personal details. No CDN or Google Fonts. Cloudflare Web Analytics is optional and off until you add a site token. It is cookieless, and it does not receive payment details or `?from=` / `?lang=` query strings.
 - **Languages:** English and Lithuanian, with an EN/LT switch in the corner.
 - **CI/CD:** GitHub Actions runs the security tests on every push and pull request, and deploys to GitHub Pages only when they pass.
 
@@ -51,6 +51,7 @@ The only file you need to edit is [`js/config.js`](js/config.js).
 | `officialUrl`, `officialHosts` | Where the real page lives. Any other host shows a warning and disables donations |
 | `githubUrl` | Where the thank-you page's back button goes |
 | `projects` | Optional allowlist for `?from=` links (see below) |
+| `cloudflareAnalyticsToken` | Public Web Analytics site token. Empty disables analytics |
 
 ## 3. Publish on GitHub Pages (free, via CI/CD)
 
@@ -74,7 +75,7 @@ Pull requests run the tests but never deploy. The workflow is locked down:
 
 ### What the tests check
 - **Guard:** the Stripe link validation rejects lookalike domains, `user@host` tricks, http, ports, query strings and `javascript:` URLs. Forks and other hosts are blocked, framing is blocked, and the project allowlist is enforced (including `__proto__`-style slugs). The config is frozen.
-- **Site hardening:** the exact CSP and referrer policy are present on every page. There are no inline scripts, styles or event handlers, and no external resources. External links use `rel="noopener"`. Nothing uses `innerHTML`, `eval` or similar. No Stripe secret keys are committed.
+- **Site hardening:** the exact CSP and referrer policy are present on every page. There are no inline scripts, styles or event handlers, and no external resources in the HTML. The only analytics host the CSP allows is Cloudflare's beacon. External links use `rel="noopener noreferrer"`. Nothing uses `innerHTML`, `eval` or similar. No Stripe secret keys are committed.
 - **Translations:** EN and LT have identical keys, every key used in the pages exists, and unsupported `?lang=` values are ignored.
 - **Config:** a non-empty payment link must be valid, and every project entry must be valid. A typo in `js/config.js` fails the build instead of breaking the live page.
 
@@ -105,6 +106,24 @@ Link straight to the Lithuanian version with `https://almantask.github.io/donate
 
 All text lives in [`js/i18n.js`](js/i18n.js). The tests fail if a key is missing from either language.
 
+## 5. Analytics
+
+Cloudflare Web Analytics counts page views, and counts each `INSERT COIN` click as a page view whose path ends in `/donate-click`. Web Analytics has no custom events, so the click is measured that way. A click means checkout was opened. A thank-you page view is not a confirmed payment: anyone can open that page. Only Stripe is.
+
+1. In the Cloudflare dashboard, open **Web Analytics → Add a site**.
+2. Register the hostname `almantask.github.io`. The token is tied to that host. `localhost` and copies on other hosts do not load the beacon.
+3. Choose the manual snippet and paste the site token into `cloudflareAnalyticsToken`.
+
+In the dashboard:
+
+| Path | What it counts |
+|---|---|
+| `/donate-me/` | Visits to the donate page |
+| `/donate-me/donate-click` | `INSERT COIN` clicks |
+| `/donate-me/thanks.html` | Opens of the thank-you page |
+
+The beacon is blocked by some ad blockers. Checkout links keep `rel="noreferrer"`. The page referrer policy is `strict-origin-when-cross-origin`, so cross-origin requests send only the site host. The recorded page path does not include query strings such as `?from=` or `?lang=`.
+
 ---
 
 ## Security checklist
@@ -112,7 +131,7 @@ All text lives in [`js/i18n.js`](js/i18n.js). The tests fail if a key is missing
 ### How the page protects donors from scammers using your name
 - **Forks and copies are neutralised.** The page only takes donations on the hosts in `officialHosts`. Anywhere else, it shows a red "not the official page" banner and disables the button. A determined copier can remove this, which is why donors are also told to check the recipient name on Stripe.
 - **No open redirects.** No link target ever comes from the URL or the referrer, only from `config.js`.
-- **No XSS.** All dynamic text is set with `textContent`, and a strict Content-Security-Policy allows only this site's own scripts, styles and fonts.
+- **No XSS.** All dynamic text is set with `textContent`, and a strict Content-Security-Policy allows only this site's own scripts, styles and fonts, plus the Cloudflare analytics beacon.
 - **Payment link pinning.** The button only ever goes to `https://buy.stripe.com/<id>`.
 - **Clickjacking.** If the page is loaded inside another site's frame, it hides itself and offers a link to the real page.
 - **Social-engineering warnings.** The page and [SECURITY.md](SECURITY.md) state that you never ask for payment by DM, email, gift cards or crypto.
