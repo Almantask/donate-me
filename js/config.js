@@ -27,9 +27,9 @@ window.DONATE_CONFIG = {
 
   githubUrl: "https://github.com/Almantask",
 
-  // Cloudflare Web Analytics site token (Web Analytics -> Manage site).
-  // Public: it is sent to the browser. 32 hex characters, or empty to disable.
-  // Create the site for the hostname in officialHosts. Dev hosts and unofficial copies never load it.
+  // Cloudflare Web Analytics site token. Keep it empty here: the deploy writes it into the
+  // published copy from the CF_BEACON_TOKEN repository secret (README, section 5).
+  // Dev hosts and unofficial copies never load the beacon.
   cloudflareAnalyticsToken: "",
 
   // Optional allowlist for ?from=<slug> links from your project sites.
