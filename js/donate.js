@@ -45,9 +45,22 @@
       return;
     }
     if (project) guard.rememberProject(project.slug);
-    // Let the browser handle new-tab clicks and reduced motion normally.
-    if (reduced || event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
+    var analytics = window.DonateAnalytics;
+    var modified = event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0;
+    // New-tab clicks stay on this page, so the beacon request can finish here.
+    // Reduced motion would navigate immediately and cancel that request.
+    if (reduced || modified) {
+      if (analytics && !modified) {
+        event.preventDefault();
+        navigating = true;
+        analytics.trackDonateClick(function () { location.assign(stripeUrl); });
+      } else if (analytics) {
+        analytics.trackDonateClick();
+      }
+      return;
+    }
 
+    if (analytics) analytics.trackDonateClick();
     event.preventDefault();
     navigating = true;
     btn.classList.add("is-pressed");
