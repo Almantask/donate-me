@@ -96,7 +96,9 @@ test("config is valid", () => {
   for (const slug of Object.keys(cfg.projects || {})) {
     assert.ok(guard.getProject(slug), `projects.${slug} is invalid (slug must be [a-z0-9-], url must be https, name required)`);
   }
-  if (cfg.cloudflareAnalyticsToken) {
-    assert.match(cfg.cloudflareAnalyticsToken, /^[a-f0-9]{32}$/i, "cloudflareAnalyticsToken must be the 32-hex site token");
-  }
+  assert.equal(
+    cfg.cloudflareAnalyticsToken,
+    "",
+    "cloudflareAnalyticsToken must stay empty in the repo; set the CF_BEACON_TOKEN secret instead"
+  );
 });

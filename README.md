@@ -5,7 +5,7 @@ A retro pixel-art donation page for my open-source projects, with no backend.
 - **Donate page** (`index.html`): a beating 8-bit heart, floating hearts and an `INSERT COIN` button that opens a Stripe Payment Link.
 - **Thank-you page** (`thanks.html`): Stripe redirects here after payment. The heart levels up, bursts into pixel confetti, and stars rain down.
 - **Cost:** hosting on GitHub Pages is free. Stripe charges only its processing fee (roughly 1.5% + €0.25 for EEA cards). There's no platform fee and no subscription.
-- **Privacy:** donors see your handle and Stripe's checkout, not your personal details. No CDN or Google Fonts. Cloudflare Web Analytics is optional and off until you add a site token. It is cookieless, and it does not receive payment details or `?from=` / `?lang=` query strings.
+- **Privacy:** donors see your handle and Stripe's checkout, not your personal details. No CDN or Google Fonts. Cloudflare Web Analytics is optional and off until the `CF_BEACON_TOKEN` secret is set. It is cookieless, and it does not receive payment details or `?from=` / `?lang=` query strings.
 - **Languages:** English and Lithuanian, with an EN/LT switch in the corner.
 - **CI/CD:** GitHub Actions runs the security tests on every push and pull request, and deploys to GitHub Pages only when they pass.
 
@@ -51,7 +51,7 @@ The only file you need to edit is [`js/config.js`](js/config.js).
 | `officialUrl`, `officialHosts` | Where the real page lives. Any other host shows a warning and disables donations |
 | `githubUrl` | Where the thank-you page's back button goes |
 | `projects` | Optional allowlist for `?from=` links (see below) |
-| `cloudflareAnalyticsToken` | Public Web Analytics site token. Empty disables analytics |
+| `cloudflareAnalyticsToken` | Leave empty. The deploy fills it from the `CF_BEACON_TOKEN` secret (section 5) |
 
 ## 3. Publish on GitHub Pages (free, via CI/CD)
 
@@ -64,7 +64,7 @@ After that, every push to `main` runs [`.github/workflows/ci-cd.yml`](.github/wo
 
 | Job | What it does |
 |---|---|
-| **Test & build** | Runs `npm test` (no dependencies), warns if the payment link is empty, and copies only the public site files into `_site/` |
+| **Test & build** | Runs `npm test` (no dependencies), warns if the payment link is empty, copies only the public site files into `_site/`, and writes the `CF_BEACON_TOKEN` secret into `_site/js/config.js` |
 | **Deploy to GitHub Pages** | Runs only on `main` after the tests pass, and publishes `_site/` to `https://almantask.github.io/donate-me/` |
 
 Pull requests run the tests but never deploy. The workflow is locked down:
@@ -110,9 +110,23 @@ All text lives in [`js/i18n.js`](js/i18n.js). The tests fail if a key is missing
 
 Cloudflare Web Analytics counts page views, and counts each `INSERT COIN` click as a page view whose path ends in `/donate-click`. Web Analytics has no custom events, so the click is measured that way. A click means checkout was opened. A thank-you page view is not a confirmed payment: anyone can open that page. Only Stripe is.
 
-1. In the Cloudflare dashboard, open **Web Analytics → Add a site**.
-2. Register the hostname `almantask.github.io`. The token is tied to that host. `localhost` and copies on other hosts do not load the beacon.
-3. Choose the manual snippet and paste the site token into `cloudflareAnalyticsToken`.
+The site token is kept as a GitHub Actions secret, the same way as in Degalai-web. It never goes in the repo: `js/config.js` keeps `cloudflareAnalyticsToken: ""`, the tests fail if it is filled in, and only the deployed copy gets the token. The token is still public in the deployed page, like any Web Analytics token. The secret keeps it out of the repo, forks and copies. `localhost` and copies on other hosts never load the beacon.
+
+**Get the token** (one Web Analytics site covers every project on `almantask.github.io`, Degalai-web included):
+
+1. In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **Analytics & logs → Web Analytics**.
+2. If `almantask.github.io` is already listed, choose **Manage site** and go to step 4. Don't add the host a second time.
+3. Otherwise choose **Add a site**, enter the hostname `almantask.github.io` and confirm. Leave EU visitors in: the option that drops them would lose most Lithuanian visits.
+4. The JS snippet shown contains `data-cf-beacon='{"token": "…"}'`. Copy the value of `token`, which is 32 hex characters. Copy only the value, without quotes.
+
+**Add it to GitHub:**
+
+5. In this repository, open **Settings → Secrets and variables → Actions → Secrets → New repository secret**.
+6. Name: `CF_BEACON_TOKEN`. Secret: the token. Use a secret, not a variable.
+7. Deploy: **Actions → CI/CD → Run workflow** on `main`, or push to `main`. The **Build site** log says `Analytics token written to _site/js/config.js`. Without the secret it warns that analytics is off. A malformed secret fails the build.
+8. Check: open https://almantask.github.io/donate-me/. In the browser's network tab, `beacon.min.js` loads and a request goes to `cloudflareinsights.com/cdn-cgi/rum`. Visits show in the dashboard within a few minutes.
+
+To change the token, update the secret and deploy again.
 
 In the dashboard:
 

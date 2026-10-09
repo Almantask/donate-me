@@ -34,17 +34,16 @@ jobs:
             echo "::warning file=js/config.js::stripePaymentLink is empty - the donate button will be disabled."
           fi
 
-      - name: Check analytics token is configured
-        run: |
-          if grep -Eq '^\s*cloudflareAnalyticsToken:\s*""' js/config.js; then
-            echo "::warning file=js/config.js::cloudflareAnalyticsToken is empty - page views and donate clicks will not be tracked."
-          fi
-
       # Only the public site files are published, never tests, workflows or local config.
       - name: Build site
+        env:
+          # Cloudflare Web Analytics site token, kept out of the repo and written into the
+          # published config only. Public in the page once deployed. Unset, analytics stays off.
+          CF_BEACON_TOKEN: ${{ secrets.CF_BEACON_TOKEN }}
         run: |
           mkdir _site
           cp -r index.html thanks.html favicon.svg .nojekyll SECURITY.md css js fonts _site/
+          node scripts/inject-analytics-token.js _site/js/config.js
           find _site -type f | sort
 
       - name: Upload Pages artifact
